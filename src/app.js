@@ -1,4 +1,5 @@
 const readline = require("readline");
+const say = require("say");
 const { createUser, login, selectGroup, saveResult, getResults } = require("./database");
 
 // Function to handle user input with readline
@@ -13,23 +14,36 @@ function askQuestion(query) {
 
 async function spellingTest(user, spellings) {
   let correctAnswers = 0;
+
   for (const word of spellings) {
     let attempts = 0;
     let correct = false;
-    console.log(`Spell the word: ${word}`); // Replace with TTS if needed
+
+    console.log(`Listen to the word being spoken.`);
+
     while (!correct && attempts < 3) {
+      // Speak the word aloud
+      say.speak(word, "Alex", 1.0, (err) => {
+        if (err) console.error("Error playing audio:", err);
+      });
+
       const userAnswer = await askQuestion(`Your answer (attempt ${attempts + 1}/3): `);
+
       if (userAnswer.toLowerCase() === word.toLowerCase()) {
         console.log("Correct!");
         correct = true;
         correctAnswers++;
       } else {
         console.log("Incorrect. Try again.");
+        const replay = await askQuestion("Do you want to hear the word again? (yes/no): ");
+        if (replay.toLowerCase() !== "yes") break;
       }
       attempts++;
     }
+
     if (!correct) console.log(`The correct spelling is: ${word}`);
   }
+
   const percentage = (correctAnswers / spellings.length) * 100;
   saveResult(user.username, user.group, percentage);
   console.log(`Test complete. Your score: ${correctAnswers}/${spellings.length} (${percentage.toFixed(2)}%)`);
