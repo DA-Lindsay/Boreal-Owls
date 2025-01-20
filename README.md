@@ -14,3 +14,7 @@ This is a simple spelling practice application where students can:
 1. Clone the repository.
 2. Run `npm install` (if using any dependencies).
 3. Open `public/index.html` in your browser.
+
+## Preying this pulls down into vscode 
+
+Does this line now appear?
