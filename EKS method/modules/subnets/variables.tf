@@ -1,2 +1,4 @@
-// modules/subnets/variables.tf
-variable "vpc_id" {}
+variable "vpc_id" {
+  description = "The ID of the VPC to create subnets in"
+  type        = string
+}
