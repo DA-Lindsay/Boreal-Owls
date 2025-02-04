@@ -45,3 +45,8 @@ output "dynamodb_users_table_arn" {
 output "dynamodb_test_results_table_arn" {
   value = module.database.test_results_table_arn
 }
+
+// outputs.tf
+output "eks_cluster_id" {
+  value = module.eks.eks_cluster_id
+}
