@@ -11,6 +11,8 @@ module "subnets" {
 module "eks" {
   source     = "./modules/eks"
   subnet_ids = module.subnets.subnet_ids
+  role_arn = module.iam.eks_role_arn
+  node_role_arn = module.iam.eks_node_role_arn
 }
 
 module "iam" {
