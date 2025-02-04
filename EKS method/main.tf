@@ -1,4 +1,10 @@
 // main.tf
+provider "aws" {
+  region = "eu-west-2"  # Set your preferred AWS region
+  access_key = "your-access-key"   # Optional: Use if not using environment variables or credentials file
+  secret_key = "your-secret-key"   # Optional: Use if not using environment variables or credentials file
+}
+
 module "vpc" {
   source = "./modules/vpc"
 }
