@@ -1,22 +1,24 @@
 // main.tf
 provider "aws" {
-  region = "eu-west-2"  # Set your preferred AWS region
+  region = "eu-west-2"  
 }
 
 module "vpc" {
-  source = "./modules/vpc"
+  source = "./modules/vpc"  
 }
 
 module "subnets" {
   source    = "./modules/subnets"
-  vpc_id    = module.vpc.vpc_id
+  vpc_id    = module.vpc.vpc_id  
 }
 
 module "eks" {
   source     = "./modules/eks"
+  vpc_id     = module.vpc.vpc_id  
   subnet_ids = module.subnets.subnet_ids
-  role_arn = module.iam.eks_role_arn
+  role_arn   = module.iam.eks_role_arn
   node_role_arn = module.iam.eks_node_role_arn
+  region     = "eu-west-2"
 }
 
 module "iam" {
@@ -50,9 +52,4 @@ output "dynamodb_users_table_arn" {
 
 output "dynamodb_test_results_table_arn" {
   value = module.database.test_results_table_arn
-}
-
-// outputs.tf
-output "eks_cluster_id" {
-  value = module.eks.eks_cluster_id
 }
