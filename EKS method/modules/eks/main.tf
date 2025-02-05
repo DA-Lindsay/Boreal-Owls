@@ -1,26 +1,22 @@
-// modules/eks/main.tf
 resource "aws_eks_cluster" "eks" {
   name     = "spelling-eks-cluster"
-  role_arn = var.role_arn
+  role_arn = var.role_arn  # Ensure this is set correctly
 
   vpc_config {
     subnet_ids = var.subnet_ids
+    vpc_id     = var.vpc_id
   }
 }
 
 resource "aws_launch_template" "eks_node_template" {
   name_prefix   = "eks-node-template-initial" 
-  image_id      = "ami-06db62431bc132602" # Replace with your desired AMI ID
-  instance_type = "t3.micro" # Or your preferred instance type
+  image_id      = "ami-06db62431bc132602"
+  instance_type = "t3.micro"
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tpl", {
-    cluster_name = aws_eks_cluster.eks.name
+    CLUSTER_NAME = aws_eks_cluster.eks.name
     region       = var.region
   }))
-
-  # Add these if you need them:
-  # key_name = var.key_name # If you want to use an SSH key
-  # security_groups = [aws_security_group.worker_nodes.id] # If you have a security group resource
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
@@ -34,8 +30,10 @@ resource "aws_eks_node_group" "eks_nodes" {
     min_size     = 1
   }
 
-launch_template {
-  id      = aws_launch_template.eks_node_template.id
-  version = aws_launch_template.eks_node_template.latest_version # Use latest_version for updates
-}
+  depends_on = [aws_eks_cluster.eks] # Ensure IAM and cluster exist before nodes
+
+  launch_template {
+    id      = aws_launch_template.eks_node_template.id
+    version = aws_launch_template.eks_node_template.latest_version
+  }
 }

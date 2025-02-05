@@ -1,8 +1,10 @@
 // modules/iam/main.tf
+
 resource "aws_iam_role" "eks_role" {
   name = "eks-cluster-role"
 
   assume_role_policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [{
       Action = "sts:AssumeRole"
       Effect = "Allow"
@@ -39,6 +41,7 @@ resource "aws_iam_role" "eks_node_role" {
   }
 }
 
+# Attach necessary policies to EKS Node Role
 resource "aws_iam_role_policy_attachment" "eks_node_role_policy" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
@@ -52,4 +55,9 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
 resource "aws_iam_role_policy_attachment" "ec2_container_registry_policy" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_managed_instance" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.eks_node_role.name
 }
