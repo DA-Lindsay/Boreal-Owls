@@ -19,7 +19,7 @@ resource "aws_launch_template" "eks_node_template" {
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
-  cluster_name  = aws_eks_cluster.eks.name
+  cluster_name  = "spelling-eks-cluster"
   node_role_arn = var.node_role_arn
   subnet_ids    = var.subnet_ids
 
