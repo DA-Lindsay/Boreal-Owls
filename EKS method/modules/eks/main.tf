@@ -13,7 +13,7 @@ resource "aws_launch_template" "eks_node_template" {
   instance_type = "t3.micro"
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tpl", {
-    CLUSTER_NAME = var.cluster_name 
+    cluster_name = "spelling-app-cluster"
     region       = var.region
   }))
 }

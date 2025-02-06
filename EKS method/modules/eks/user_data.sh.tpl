@@ -7,8 +7,9 @@ yum update -y
 yum install -y aws-cli jq
 
 # Fetch the cluster name from Terraform
-export CLUSTER_NAME="${CLUSTER_NAME}"
-export REGION="${region}"
+export CLUSTER_NAME="spelling-app-cluster" 
+export REGION="eu-west-2"
+
 
 # Install SSM Agent (optional, for troubleshooting)
 yum install -y amazon-ssm-agent
