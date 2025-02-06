@@ -24,3 +24,7 @@ variable "vpc_id" {
   description = "The VPC ID where the EKS cluster will be created"
   type        = string
 }
+variable "cluster_name" {
+  type        = string
+  description = "EKS Cluster Name"
+}

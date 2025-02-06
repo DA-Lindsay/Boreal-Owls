@@ -1,24 +1,27 @@
 #!/bin/bash
 
-# Install necessary packages (adjust for your AMI - Amazon Linux 2)
+set -o xtrace
+
+# Install AWS CLI & necessary tools
 yum update -y
-yum install -y kubelet kubeadm kubectl gettext
+yum install -y aws-cli jq
 
-# Join the cluster (using variables passed from Terraform and substituted by envsubst)
-JOIN_COMMAND=$(aws eks describe-cluster --name "${CLUSTER_NAME}" --region "${region}" --query "cluster.resourcesVpcConfig.endpoint" --output text)
+# Fetch the cluster name from Terraform
+export CLUSTER_NAME="${CLUSTER_NAME}"
+export REGION="${region}"
 
-TOKEN=$(aws eks describe-cluster --name "${CLUSTER_NAME}" --region "${region}" --query "cluster.token" --output text)
+# Install SSM Agent (optional, for troubleshooting)
+yum install -y amazon-ssm-agent
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent
 
-CA_HASH=$(aws eks describe-cluster --name "${CLUSTER_NAME}" --region "${region}" --query "cluster.certificateAuthority.data" --output text | base64 -d | openssl x509 -noout -fingerprint -sha256)
-
-# Remove "SHA256=" prefix correctly
-CA_HASH="$${CA_HASH#SHA256=}"
-
-export CLUSTER_NAME="$${CLUSTER_NAME}"
-export region="$${region}"
-
-kubeadm join "$${JOIN_COMMAND}" --token "$${TOKEN}" --discovery-token-ca-cert-hash sha256:"$${CA_HASH}"
-
-# Start the kubelet service
+# Install & start kubelet
+yum install -y kubelet kubeadm kubectl
 systemctl enable kubelet
 systemctl start kubelet
+
+# Fetch and run the Amazon EKS Bootstrap script
+/etc/eks/bootstrap.sh "$CLUSTER_NAME"
+
+# Restart kubelet (ensure it picks up config changes)
+systemctl restart kubelet

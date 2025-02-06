@@ -4,7 +4,8 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "./modules/vpc"  
+  source = "./modules/vpc"
+  cidr_block = "10.0.0.0/16"  
 }
 
 module "subnets" {
@@ -15,11 +16,12 @@ module "subnets" {
 module "eks" {
   source     = "./modules/eks"
   vpc_id     = module.vpc.vpc_id  
+  cluster_name = "spelling-app-cluster" 
   subnet_ids = module.subnets.subnet_ids
   role_arn   = module.iam.eks_role_arn
   node_role_arn = module.iam.eks_node_role_arn
-  region     = "eu-west-2"
-}
+  region     = module.eks.var.region 
+  }
 
 module "iam" {
   source = "./modules/iam"
@@ -27,6 +29,7 @@ module "iam" {
 
 module "s3" {
   source      = "./modules/s3"
+  vpc_id      = module.vpc.vpc_id
   bucket_name = "spelling-app-data"
 }
 
